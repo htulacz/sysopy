@@ -1,7 +1,7 @@
 countdown: countdown.c
-	cc -c countdown.c
+	gcc -c countdown countdown.c
 all: countdown.o
-	cc -o countdown countdown.o
+	gcc -o countdown countdown.c
 clean:
 	rm countdown countdown.o
 
