@@ -1,7 +1,12 @@
+CC ?= gcc
+CFLAGS ?= -Wall -std=c17 -o
+
+.PHONY:
+
 countdown: countdown.c
-	gcc -c countdown countdown.c
-all: countdown.o
-	gcc -o countdown countdown.c
+	 $(CC) $(CFLAGS) countdown countdown.c
+all: countdown
+
 clean:
-	rm countdown countdown.o
+	rm -f countdown
 
