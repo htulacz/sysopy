@@ -19,7 +19,6 @@ int main(int argc, char * argv[]){
         printf("child's local = %d, child's global = %d\n", local, global);
 
         execl("/bin/ls", "ls", argv[1], NULL);
-        perror("Błąd execl");
         return EXIT_FAILURE;
     } else {
         wait(NULL);
@@ -27,7 +26,7 @@ int main(int argc, char * argv[]){
         printf("parent pid = %d, child pid = %d\n", getpid(), pid);
 
         int status;
-        wait(&status); // czekaj na zakończenie procesu potomnego i odczytaj status
+        wait(&status);
 
         if (WIFEXITED(status)) {
             printf("Child exit code: %d\n", WEXITSTATUS(status));
