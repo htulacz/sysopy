@@ -8,24 +8,30 @@
 #define MAX_MODE 3
 
 int mode = 1;
+int changes = 0;
 
 void sigusr1_handler(int sig, siginfo_t *info, void *ucontext) {
     pid_t sender_pid = info->si_pid;
 
     kill(sender_pid, SIGUSR1);
+    if (mode != info->si_value.sival_int){
+        changes++;
+    }
+    mode = info->si_value.sival_int;
 
-    printf("Catcher received SIGUSR1 from sender (PID: %d)\n", sender_pid);
+    printf("Catcher received SIGUSR1 from sender (PID: %d) with mode: %d\n", sender_pid, mode);
 
     switch (mode) {
         case 1:
+            printf("Mode 1: Printing numbers 1 to 100\n");
             for (int i = 1; i <= 100; ++i)
                 printf("%d\n", i);
             break;
         case 2:
-            printf("Received mode change request %d times\n", info->si_value.sival_int);
+            printf("Mode 2: Number of mode change requests: %d\n", changes);
             break;
         case 3:
-            printf("Catcher exiting...\n");
+            printf("Mode 3: Exiting catcher...\n");
             exit(0);
             break;
         default:
