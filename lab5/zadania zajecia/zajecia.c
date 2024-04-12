@@ -5,7 +5,7 @@ int global = 0;
 int sigCnt = 0;
 
 void handler(int signum){
-    printf("%d %d %f\n", global, sigCnt, (double)global/(double)sigCnt);
+//    printf("%d %d\n", global);
     global++;
 }
 int main(){
@@ -15,14 +15,16 @@ int main(){
     if (child_pid == 0){
         while(1) {
             signal(SIGUSR1, handler);
-            sigCnt++;
         }
     }
 
     if (child_pid > 0){
         sleep(1);
+        union signal sv;
         while (1){
-            kill(child_pid,SIGUSR1);
+            sigCnt++;
+            sv.sival_int =sigCnt;
+            sigqueue(child_pid,SIGUSR1,sv);
         }
     }
 
