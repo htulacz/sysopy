@@ -1,0 +1,4 @@
+dynamic:
+    gcc -fPIC -c bib1.c
+    gcc -Wall -shared -fPIC -o libbib1.so bib1.o
+    gcc biblio.c -o chujek -ld1
