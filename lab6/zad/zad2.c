@@ -4,8 +4,6 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <unistd.h>
-#define PIPE "./rura"
-#define PIPE_r "./rura1"
 
 double rectangle(double a, double b) {
     return a * b;
@@ -13,15 +11,16 @@ double rectangle(double a, double b) {
 
 int main(int argc, char *argv[]) {
     if (argc != 3) {
+        fprintf(stderr, "Usage: %s <width> <n>\n", argv[0]);
         return 1;
     }
 
-    mkfifo(PIPE, 0666);
-    mkfifo(PIPE_r,0666);
-
-    int fd = open(PIPE, O_RDWR);
-    FILE * file = fopen(PIPE_r,"w");
-
+    mkfifo("./rura", 0666);
+    int fd = open("./rura", O_RDWR);
+    if (fd == -1) {
+        perror("open");
+        return 1;
+    }
 
     double result = 0;
     double width = atof(argv[1]);
@@ -29,21 +28,31 @@ int main(int argc, char *argv[]) {
 
     for (int i = 1; i <= n; i++) {
         pid_t child = fork();
-        if (child == 0) {
-            double actual_width = i * width < 1.0 ? width : 1.0 - (i-1) * width;
-            double x = ((i-1) * width * 2.0 + actual_width) / 2.0;
+        if (child == -1) {
+            perror("fork");
+            return 1;
+        } else if (child == 0) {
+            double actual_width = i * width < 1.0 ? width : 1.0 - (i - 1) * width;
+            double x = ((i - 1) * width * 2.0 + actual_width) / 2.0;
             double value = rectangle(actual_width, 4 / (x * x + 1));
-            write(fd, &value, sizeof(double));
+            if (write(fd, &value, sizeof(double)) == -1) {
+                perror("write");
+                return 1;
+            }
             exit(0);
-        }
-        else {
+        } else {
             double curr_res;
-            read(fd,&curr_res,sizeof(double));
+            if (read(fd, &curr_res, sizeof(double)) == -1) {
+                perror("read");
+                return 1;
+            }
             result += curr_res;
         }
     }
-    putw(result,file);
-    fclose(file);
     close(fd);
+    remove("./rura");
+    FILE * file = fopen("./p", "wb");
+    fwrite(&result,sizeof(double), 1, file);
+    fclose(file);
     return 0;
 }

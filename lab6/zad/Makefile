@@ -18,4 +18,4 @@ zad2.o: zad2.c
 	$(CC) $(CFLAGS) -c zad2.c
 
 clean:
-	rm -f main1 main2 zad1.o zad2.o
+	rm -f main1 main2 zad1.o zad2.o rura rura1
